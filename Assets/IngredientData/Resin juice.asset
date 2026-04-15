@@ -22,7 +22,7 @@ MonoBehaviour:
   tempModifier: -0.4
   timeModifier: -0.2
   stirModifier: 0.1
-  tags: 010000000000000003000000
+  tags: 090000000000000003000000
   affectsStartPhase: 0
   affectsBrewPhase: 1
   affectsFinishPhase: 1

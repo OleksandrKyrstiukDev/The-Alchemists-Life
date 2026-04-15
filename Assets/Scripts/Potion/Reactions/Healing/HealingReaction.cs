@@ -1,45 +1,31 @@
 using UnityEngine;
 
+public enum PlantState
+{
+    Normal,
+    Grown,
+    Overgrown,
+    Dead
+}
+
 public class HealingReaction : PotionReaction
 {
-    [Header("Growth Settings")]
-    [SerializeField] private float perfectScaleMultiplier = 2f;
-    [SerializeField] private float goodScaleMultiplier = 1.3f;
+    public PlantState CurrentState { get; private set; }
 
-    [SerializeField] private bool destroyOnFail = true;
+    public event System.Action<PlantState> OnStateChanged;
 
     public override void React(BrewResult quality)
     {
-        Debug.Log($"[HealingReaction] React: {quality}");
-
-        switch (quality)
+        CurrentState = quality switch
         {
-            case BrewResult.Perfect:
-                Grow(perfectScaleMultiplier);
-                break;
+            BrewResult.Perfect => PlantState.Overgrown,
+            BrewResult.Good => PlantState.Grown,
+            BrewResult.Fail => PlantState.Dead,
+            _ => PlantState.Normal
+        };
 
-            case BrewResult.Good:
-                Grow(goodScaleMultiplier);
-                break;
+        Debug.Log($"[HealingReaction] State: {CurrentState}");
 
-            case BrewResult.Fail:
-                Fail();
-                break;
-        }
-    }
-
-    void Grow(float multiplier)
-    {
-        transform.localScale *= multiplier;
-
-        Debug.Log($"[HealingReaction] Plant grown x{multiplier}");
-    }
-
-    void Fail()
-    {
-        Debug.Log("[HealingReaction] Plant destroyed");
-
-        if (destroyOnFail)
-            Destroy(gameObject);
+        OnStateChanged?.Invoke(CurrentState);
     }
 }

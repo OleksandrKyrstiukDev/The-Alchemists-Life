@@ -24,7 +24,7 @@ public class RecipeManager : MonoBehaviour
     private void Awake()
     {
         foreach (var r in allRecipes)
-            unlocked.Add(r); // поки що всі відкриті
+            unlocked.Add(r); 
     }
 
     public RecipeObject GetCurrentRecipe()
@@ -112,6 +112,4 @@ public class RecipeManager : MonoBehaviour
             isExperimental = false
         };
     }
-
-
 }

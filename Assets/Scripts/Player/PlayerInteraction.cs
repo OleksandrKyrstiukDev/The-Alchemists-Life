@@ -6,7 +6,7 @@ public class PlayerInteraction : MonoBehaviour
     [Header("Interaction")]
     [SerializeField] private float interactRadius = 1.5f;
     [SerializeField] private LayerMask interactLayer;
-    [SerializeField] private Transform origin; // usually camera or player center
+    [SerializeField] private Transform origin; 
 
     private IIngredientReceiver currentReceiver;
 
@@ -41,7 +41,6 @@ public class PlayerInteraction : MonoBehaviour
         }
     }
 
-    // INPUT
     public void OnFinish(InputValue value)
     {
         if (!value.isPressed) return;

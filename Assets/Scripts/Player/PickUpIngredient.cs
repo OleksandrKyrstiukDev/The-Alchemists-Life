@@ -21,23 +21,19 @@ public class PickUpIngredient : MonoBehaviour
     public IngredientObject CurrentIngredient =>
         currentIngredient?.GetComponent<IngredientObject>();
 
-    // ---------------------------------
     public void OnInteract(InputValue value)
     {
         if (!value.isPressed) return;
 
-        // 1. Якщо тримаємо інгредієнт і біля котла → додати
         if (isHolding && TryGiveIngredient())
             return;
 
-        // 2. Інакше звичайний пікап
         if (isHolding)
             Drop();
         else
             TryPickup();
     }
 
-    // ---------------------------------
     private bool TryGiveIngredient()
     {
         Collider[] hits = Physics.OverlapSphere(
@@ -62,10 +58,14 @@ public class PickUpIngredient : MonoBehaviour
         return false;
     }
 
-
-    // ---------------------------------
     private void TryPickup()
     {
+        if (isHolding)
+        {
+            Debug.Log("[Pickup] Already holding something");
+            return;
+        }
+
         Vector3 center =
             playerController.transform.position +
             Vector3.up * playerController.height * 0.5f;
@@ -88,11 +88,28 @@ public class PickUpIngredient : MonoBehaviour
             }
         }
 
-        if (closest != null)
-            Pickup(closest.gameObject);
+        if (closest == null) return;
+
+        var source = closest.GetComponent<IngredientSource>();
+
+        if (source != null)
+        {
+            GameObject obj = source.Take(handPoint);
+
+            if (obj != null)
+            {
+                currentIngredient = obj;
+                isHolding = true;
+
+                Debug.Log("[Pickup] Took from source");
+            }
+
+            return;
+        }
+
+        Pickup(closest.gameObject);
     }
 
-    // ---------------------------------
     private void Pickup(GameObject obj)
     {
         currentIngredient = obj;
@@ -135,8 +152,6 @@ public class PickUpIngredient : MonoBehaviour
         currentIngredient = null;
         isHolding = false;
     }
-
-    // ---------------------------------
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;

@@ -41,10 +41,8 @@ public class PotionObject : MonoBehaviour
 
         var block = new MaterialPropertyBlock();
 
-        // беремо поточні значення
         rend.GetPropertyBlock(block);
 
-        // пробуємо ВСІ стандартні варіанти
         block.SetColor("_BaseColor", c);
         block.SetColor("_Color", c);
         block.SetColor("_EmissionColor", c * 0.5f);
@@ -53,7 +51,6 @@ public class PotionObject : MonoBehaviour
 
         Debug.Log($"[PotionObject] Color applied via PropertyBlock: {c}");
     }
-
 
     void LogPotionData()
     {

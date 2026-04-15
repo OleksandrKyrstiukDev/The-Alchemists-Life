@@ -72,9 +72,6 @@ public class Cauldron : MonoBehaviour, IIngredientReceiver, IBrewFinishReceiver
         UI = ui;
     }
 
-    // -----------------------------
-    // Ingredient input
-    // -----------------------------
     public bool CanReceive(IngredientData data) => data != null;
 
     public void Receive(IngredientData data)
@@ -85,9 +82,6 @@ public class Cauldron : MonoBehaviour, IIngredientReceiver, IBrewFinishReceiver
         ingredients.Add(data);
     }
 
-    // -----------------------------
-    // Brew entry point
-    // -----------------------------
     public void FinishBrew()
     {
         if (UI == null) return;
@@ -107,13 +101,11 @@ public class Cauldron : MonoBehaviour, IIngredientReceiver, IBrewFinishReceiver
 
         hasBrewed = true;
 
-        // 1️⃣ Знаходимо рецепт
         currentMatch = recipeManager.MatchRecipe(ingredients);
 
         bool isExperimental = currentMatch.isExperimental;
         RecipeObject recipe = currentMatch.recipe;
 
-        // 2️⃣ Готуємо фази
         BrewingPhase prepPhase = null;
         BrewingPhase brewPhase = null;
 
@@ -123,20 +115,15 @@ public class Cauldron : MonoBehaviour, IIngredientReceiver, IBrewFinishReceiver
             brewPhase = recipe.phases[1];
         }
 
-        // 3️⃣ PrepResult з UI
         PrepResult prep = new PrepResult
         {
             prepTime = UI.PrepTime,
             avgPrepTemperature = UI.AveragePrepTemperature
         };
 
-        // 4️⃣ Feedback + штрафи
         List<BrewFeedback> feedback = new List<BrewFeedback>();
         float extraPenalty = 0f;
 
-        // ----------------------------
-        // 🔴 ШТРАФ ЗА ЗАЙВІ ІНГРЕДІЄНТИ
-        // ----------------------------
         if (!isExperimental && recipe != null)
         {
             int expected = recipe.requiredIngredients.Count;
@@ -158,13 +145,9 @@ public class Cauldron : MonoBehaviour, IIngredientReceiver, IBrewFinishReceiver
         }
         else
         {
-            // експеримент → легкий хаос
             extraPenalty += ingredients.Count * 0.1f;
         }
 
-        // ----------------------------
-        // 🔴 ОСНОВНА ОЦІНКА
-        // ----------------------------
         BrewResult result = CauldronProcess.Evaluate(
             ingredients,
             feedback,
@@ -180,9 +163,6 @@ public class Cauldron : MonoBehaviour, IIngredientReceiver, IBrewFinishReceiver
             currentMatch.confidence
         );
 
-        // ----------------------------
-        // 📣 ПОКАЗ ФІДБЕКУ
-        // ----------------------------
         BrewResultData resultData = new BrewResultData
         {
             result = result,
@@ -191,9 +171,6 @@ public class Cauldron : MonoBehaviour, IIngredientReceiver, IBrewFinishReceiver
 
         UI.ShowFeedback(resultData);
 
-        // ----------------------------
-        // 🧪 КОНТЕКСТ ДЛЯ ІМЕНІ
-        // ----------------------------
         bool underheated = feedback.Any(f => f.type == BrewMistakeType.Underheated);
         bool overheated = feedback.Any(f => f.type == BrewMistakeType.Overheated);
 
@@ -227,9 +204,6 @@ public class Cauldron : MonoBehaviour, IIngredientReceiver, IBrewFinishReceiver
 
         SpawnPotion(result, potionName);
 
-        // ----------------------------
-        // 🧹 RESET
-        // ----------------------------
         ResetCauldron();
     }
 
@@ -274,7 +248,6 @@ public class Cauldron : MonoBehaviour, IIngredientReceiver, IBrewFinishReceiver
 
         float prepMax = defaultPrepMaxTemp;
 
-        // якщо рецепт вже відомий — використовуємо його
         if (currentMatch.recipe != null && currentMatch.recipe.phases.Count > 0)
         {
             var prep = currentMatch.recipe.phases[0];
@@ -318,6 +291,8 @@ public class Cauldron : MonoBehaviour, IIngredientReceiver, IBrewFinishReceiver
         {
             IngredientTag.Fire => PotionPurpose.Heating,
             IngredientTag.Healing => PotionPurpose.Healing,
+            IngredientTag.Poison => PotionPurpose.Poison,
+            IngredientTag.Clean => PotionPurpose.Clean,
             _ => PotionPurpose.None
         };
     }

@@ -13,6 +13,7 @@ public enum PotionPurpose
     Repair,
     Poison,
     Healing,
+    Clean,
     None
 }
 

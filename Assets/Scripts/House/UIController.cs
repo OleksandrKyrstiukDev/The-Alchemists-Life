@@ -5,7 +5,7 @@ public class UIController : MonoBehaviour
 {
     public Slider progressBar;
     public Gradient colorGradient;
-    public Image fillImage;
+
 
     public void UpdateProgress(float target)
     {
@@ -25,7 +25,6 @@ public class UIController : MonoBehaviour
 
             float value = Mathf.Lerp(start, target, t);
             progressBar.value = value;
-            fillImage.color = colorGradient.Evaluate(value);
 
             yield return null;
         }

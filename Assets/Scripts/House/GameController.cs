@@ -8,14 +8,12 @@ public class GameController : MonoBehaviour
 
     private bool finished = false;
 
-    // щоб не оновлювати UI без змін
     private float lastProgress = -1f;
 
     void Update()
     {
         float progress = house.GetProgress();
 
-        // оновлюємо UI тільки якщо є зміна
         if (Mathf.Abs(progress - lastProgress) > 0.001f)
         {
             ui.UpdateProgress(progress);
@@ -34,17 +32,14 @@ public class GameController : MonoBehaviour
     {
         finished = true;
 
-        // фінальний буст світла
         sceneLight.intensity = 2f;
         sceneLight.color = Color.yellow;
     }
 
     void UpdateWorldVisuals(float progress)
     {
-        // плавна зміна світла залежно від стану будинку
-        sceneLight.intensity = Mathf.Lerp(0.5f, 2f, progress);
 
-        // холод → теплий
+        sceneLight.intensity = Mathf.Lerp(0.5f, 2f, progress);
         sceneLight.color = Color.Lerp(Color.blue, Color.yellow, progress);
     }
 }

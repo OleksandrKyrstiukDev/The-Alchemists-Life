@@ -1,0 +1,10 @@
+using UnityEngine;
+
+public class QuestInteractable : MonoBehaviour
+{
+    public string taskId;
+    public int amount = 1;
+
+    public void Interact() => FindFirstObjectByType<QuestManager>().ProgressTask(taskId, amount);
+    
+}

@@ -4,6 +4,7 @@ public class Fireplace : MonoBehaviour
 {
     [Header("Links")]
     [SerializeField] private HeatingReaction heatingReaction;
+    [SerializeField] private QuestInteractable questInteractable;
 
     [Header("Visuals")]
     [SerializeField] private Renderer fireRenderer;
@@ -52,11 +53,13 @@ public class Fireplace : MonoBehaviour
             case HeatingState.Perfect:
                 ApplyFire(perfectFireColor, perfectIntensity);
                 house.warmth += 0.5f;
+                questInteractable.Interact();
                 break;
 
             case HeatingState.Stable:
                 ApplyFire(goodFireColor, goodIntensity);
                 house.warmth += 0.3f;
+                questInteractable.Interact();
                 break;
 
             case HeatingState.Unstable:

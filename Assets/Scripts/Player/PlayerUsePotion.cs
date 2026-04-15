@@ -10,7 +10,6 @@ public class PlayerUsePotion : MonoBehaviour
     private bool hasPotion;
     private PotionObject potionInHand;
 
-    // Input System
     public void OnInteract(InputValue value)
     {
         if (!value.isPressed) return;
@@ -61,9 +60,6 @@ public class PlayerUsePotion : MonoBehaviour
         Debug.Log("[PlayerUsePotion] Potion used");
     }
 
-
-
-    // Викликається Cauldron'ом
     public void GivePotion(BrewedPotion potion)
     {
         if (potionInHand != null)
@@ -82,7 +78,6 @@ public class PlayerUsePotion : MonoBehaviour
         potionGO.transform.localRotation = Quaternion.identity;
         potionGO.transform.localScale = Vector3.one;
 
-        // ВИМИКАЄМО фізику
         if (potionGO.TryGetComponent(out Rigidbody rb))
             rb.isKinematic = true;
 
@@ -94,5 +89,4 @@ public class PlayerUsePotion : MonoBehaviour
 
         Debug.Log($"[PlayerUsePotion] Potion in hand: {potion.data.name}");
     }
-
 }

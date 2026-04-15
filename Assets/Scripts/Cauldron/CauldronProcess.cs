@@ -18,21 +18,15 @@ public static class CauldronProcess
     float recipeConfidence
 )
     {
-        // ----------------------------
-        // SAFETY
-        // ----------------------------
+
         if (ingredients == null || ingredients.Count == 0)
             return BrewResult.Fail;
 
         if (feedback == null)
             return BrewResult.Fail;
 
-        feedback.Clear(); // ⬅️ КРИТИЧНО
+        feedback.Clear(); 
 
-
-        // ----------------------------
-        // Averages
-        // ----------------------------
         float stability = 0f;
         float toxicity = 0f;
 
@@ -45,9 +39,6 @@ public static class CauldronProcess
         stability /= ingredients.Count;
         toxicity /= ingredients.Count;
 
-        // ----------------------------
-        // BREW TARGETS
-        // ----------------------------
         if (brewPhase == null)
         {
             Debug.LogWarning("[CauldronProcess] brewPhase == null, використання стандартних значень");
@@ -75,9 +66,6 @@ public static class CauldronProcess
     $"StirDev={stirDev:0.00} (Count={stirCount}, Target={stirTarget})"
 );
 
-        // ----------------------------
-        // FEEDBACK: temperature
-        // ----------------------------
         if (temperature < tempTarget - brewPhase.temperatureTolerance)
         {
             feedback.Add(new BrewFeedback
@@ -95,9 +83,6 @@ public static class CauldronProcess
             });
         }
 
-        // ----------------------------
-        // FEEDBACK: stirring
-        // ----------------------------
         if (stirCount < stirTarget)
         {
             feedback.Add(new BrewFeedback
@@ -115,13 +100,9 @@ public static class CauldronProcess
             });
         }
 
-        // ----------------------------
-        // FEEDBACK: ingredients
-        // ----------------------------
         float effectiveStability =
     (stability + prep.stabilityBonus) * recipeConfidence;
 
-        // ❗ нестабільність має сенс тільки якщо confidence < 1
         if (effectiveStability < 1.0f && recipeConfidence < 0.99f)
         {
             feedback.Add(new BrewFeedback
@@ -141,9 +122,6 @@ public static class CauldronProcess
             });
         }
 
-        // ----------------------------
-        // FEEDBACK: PREP PHASE
-        // ----------------------------
         float prepDelta = Mathf.Abs(prep.prepTime - prepPhase.optimalTime);
         float prepMax = prepPhase.timeTolerance * 2f;
         float prepSeverity = Mathf.Clamp01(prepDelta / prepMax);
@@ -165,9 +143,6 @@ public static class CauldronProcess
             });
         }
 
-        // ----------------------------
-        // RISK CALCULATION
-        // ----------------------------
         float risk = tempDev * 1.2f + stirDev * 0.5f;
         Debug.Log(
     $"[RISK] Initial risk = {risk:0.00} " +
@@ -197,11 +172,6 @@ public static class CauldronProcess
 
         Debug.Log($"[RISK] After stability = {risk:0.00}");
 
-
-
-        // ----------------------------
-        // EXPLOSION
-        // ----------------------------
         bool extremeHeat =
      temperature > brewPhase.optimalTemperature +
      brewPhase.temperatureTolerance * 2.5f;
@@ -219,10 +189,6 @@ public static class CauldronProcess
             return BrewResult.Explode;
         }
 
-
-        // ----------------------------
-        // EXTRA PENALTY
-        // ----------------------------
         if (extraPenalty >= 0.2f)
         {
             feedback.Add(new BrewFeedback
@@ -238,9 +204,6 @@ public static class CauldronProcess
             }
         }
 
-        // ----------------------------
-        // FINAL RESULT
-        // ----------------------------
         BrewResult result;
         if (risk < 0.5f) result = BrewResult.Perfect;
         else if (risk < 1.2f) result = BrewResult.Good;
@@ -276,5 +239,4 @@ public static class CauldronProcess
 
         return result;
     }
-
 }

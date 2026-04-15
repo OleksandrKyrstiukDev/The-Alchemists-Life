@@ -9,5 +9,6 @@ public enum IngredientTag
     Chaos,
     Nature,
     Shadow,
+    Clean,
     None
 }

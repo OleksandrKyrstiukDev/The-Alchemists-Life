@@ -3,9 +3,9 @@
 public enum RecipeAddResult
 {
     Allowed,
-    ExtraIngredient,     // зайвий, але дозволений
-    DuplicateIngredient, // забагато одного
-    ForbiddenIngredient  // взагалі не з рецепту
+    ExtraIngredient,    
+    DuplicateIngredient, 
+    ForbiddenIngredient  
 }
 
 public enum RecipeCheckResult
@@ -27,7 +27,6 @@ public static class RecipeValidator
         if (recipe == null || incoming == null)
             return RecipeAddResult.ForbiddenIngredient;
 
-        // 1. Перевіряємо чи інгредієнт взагалі є в рецепті
         RecipeIngredient req = null;
 
         foreach (var r in recipe.requiredIngredients)
@@ -39,21 +38,17 @@ public static class RecipeValidator
             }
         }
 
-        // ❌ Взагалі не з рецепту
         if (req == null)
             return RecipeAddResult.ForbiddenIngredient;
 
-        // 2. Скільки вже додано такого інгредієнта
         int currentAmount = 0;
         foreach (var ing in current)
             if (ing == incoming)
                 currentAmount++;
 
-        // ⚠️ Забагато цього інгредієнта
         if (currentAmount >= req.amount)
             return RecipeAddResult.DuplicateIngredient;
 
-        // ✅ Все ок
         return RecipeAddResult.Allowed;
     }
 
@@ -62,7 +57,7 @@ public static class RecipeValidator
     RecipeObject recipe
 )
     {
-        // 1. Перевірка: чи вистачає кожного інгредієнта
+
         foreach (var req in recipe.requiredIngredients)
         {
             int count = 0;
@@ -74,7 +69,6 @@ public static class RecipeValidator
                 return RecipeCheckResult.MissingIngredient;
         }
 
-        // 2. Перевірка: чи є зайві
         foreach (var ing in input)
         {
             bool allowed = false;
