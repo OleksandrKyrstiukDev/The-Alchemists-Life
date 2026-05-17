@@ -18,7 +18,7 @@ public class PlayerMovement : MonoBehaviour
 
     private CharacterController controller;
     private PlayerInputActions inputActions;
-
+    [SerializeField] private Animator animator;
     private Vector2 moveInput;
     private float verticalVelocity;
     private float turnSmoothVelocity;
@@ -42,12 +42,19 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+
         ReadInput();
         ApplyGravity();
+        UpdateAnimation();
         Move();
 
     }
+    private void UpdateAnimation()
+    {
+        float moveAmount = moveInput.magnitude;
 
+        animator.SetFloat("Move", moveInput.magnitude, 0.1f, Time.deltaTime);
+    }
     private void ReadInput()
     {
         moveInput = inputActions.Player.Move.ReadValue<Vector2>();

@@ -6,9 +6,10 @@ public class PlayerInteraction : MonoBehaviour
     [Header("Interaction")]
     [SerializeField] private float interactRadius = 1.5f;
     [SerializeField] private LayerMask interactLayer;
-    [SerializeField] private Transform origin; 
+    [SerializeField] private Transform origin;
 
     private IIngredientReceiver currentReceiver;
+    private OrdersZone currentOrdersZone;
 
     private void Update()
     {
@@ -29,16 +30,47 @@ public class PlayerInteraction : MonoBehaviour
 
         foreach (var hit in hits)
         {
-            if (!hit.TryGetComponent(out IIngredientReceiver receiver))
-                continue;
-
-            float dist = Vector3.Distance(origin.position, hit.transform.position);
-            if (dist < closest)
+            if (hit.TryGetComponent(out IIngredientReceiver receiver))
             {
-                closest = dist;
-                currentReceiver = receiver;
+                float dist = Vector3.Distance(origin.position, hit.transform.position);
+
+                if (dist < closest)
+                {
+                    closest = dist;
+                    currentReceiver = receiver;
+                }
             }
         }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.TryGetComponent(out OrdersZone zone))
+        {
+            currentOrdersZone = zone;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.TryGetComponent(out OrdersZone zone))
+        {
+            if (currentOrdersZone == zone)
+                currentOrdersZone = null;
+        }
+    }
+
+    public void OnPanel(InputValue value)
+    {
+        if (!value.isPressed) return;
+
+        if (currentOrdersZone != null)
+        {
+            currentOrdersZone.Open();
+            return;
+        }
+
+        Debug.Log("[PLAYER] Nothing to open");
     }
 
     public void OnFinish(InputValue value)
@@ -60,7 +92,6 @@ public class PlayerInteraction : MonoBehaviour
             Debug.Log("[PLAYER] Current receiver cannot finish brewing");
         }
     }
-
 
     public void OnHeat(InputValue value)
     {

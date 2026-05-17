@@ -9,14 +9,13 @@ public class PlayerUsePotion : MonoBehaviour
     private BrewedPotion currentPotion;
     private bool hasPotion;
     private PotionObject potionInHand;
+    private PotionZone currentZone;
 
     public void OnInteract(InputValue value)
     {
         if (!value.isPressed) return;
         UsePotion();
     }
-
-    private PotionZone currentZone;
 
     void OnTriggerEnter(Collider other)
     {
@@ -89,4 +88,17 @@ public class PlayerUsePotion : MonoBehaviour
 
         Debug.Log($"[PlayerUsePotion] Potion in hand: {potion.data.name}");
     }
+    public void RemovePotion()
+    {
+        if (potionInHand != null)
+            Destroy(potionInHand.gameObject);
+
+        potionInHand = null;
+
+        Debug.Log("[PlayerUsePotion] Potion removed");
+    }
+    public bool HasPotion => potionInHand != null;
+
+    public PotionData CurrentPotionData =>
+        potionInHand != null ? potionInHand.data : null;
 }

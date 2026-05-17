@@ -9,6 +9,7 @@ public class PotionObject : MonoBehaviour
 
     private Renderer rend;
 
+    public PotionData data;
 
     public void Init(BrewedPotionData data)
     {

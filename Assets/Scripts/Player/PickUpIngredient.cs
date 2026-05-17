@@ -10,7 +10,7 @@ public class PickUpIngredient : MonoBehaviour
     [Header("Pickup Settings")]
     [SerializeField] private float pickupRadius = 1.5f;
     [SerializeField] private LayerMask pickupLayer;
-
+    [SerializeField] private float pickupHeightOffset = 0.3f;
     [Header("Cauldron Interaction")]
     [SerializeField] private float cauldronRadius = 2f;
 
@@ -37,8 +37,9 @@ public class PickUpIngredient : MonoBehaviour
     private bool TryGiveIngredient()
     {
         Collider[] hits = Physics.OverlapSphere(
-            transform.position,
+            transform.position + Vector3.up * 2,
             cauldronRadius
+            
         );
 
         foreach (var hit in hits)
@@ -67,8 +68,8 @@ public class PickUpIngredient : MonoBehaviour
         }
 
         Vector3 center =
-            playerController.transform.position +
-            Vector3.up * playerController.height * 0.5f;
+     playerController.transform.position +
+     Vector3.up * (playerController.height * 0.5f + pickupHeightOffset);
 
         Collider[] hits =
             Physics.OverlapSphere(center, pickupRadius, pickupLayer);
@@ -155,6 +156,6 @@ public class PickUpIngredient : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, cauldronRadius);
+        Gizmos.DrawWireSphere(transform.position + Vector3.up * 2, cauldronRadius);
     }
 }
