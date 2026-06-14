@@ -25,4 +25,10 @@ public class OrderObject : ScriptableObject
     [Header("Rewards")]
     public int goldReward;
     public int reputationReward;
+
+    [Header("Penalty")]
+    public int declinePenalty = 1;
+
+    [Header("Progression")]
+    public ReputationTier requiredTier;
 }

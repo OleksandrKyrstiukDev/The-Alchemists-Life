@@ -8,14 +8,26 @@ public class PlayerInteraction : MonoBehaviour
     [SerializeField] private LayerMask interactLayer;
     [SerializeField] private Transform origin;
 
+    [Header("Systems")]
+    [SerializeField] private PlayerInventory playerInventory;
+    [SerializeField] private SleepSystem sleepSystem;
+    [SerializeField] private CameraFocusController cameraFocus;
     private IIngredientReceiver currentReceiver;
     private OrdersZone currentOrdersZone;
+    private StorageZone currentStorageZone;
+    private BedTrigger currentBed;
 
+    public Cauldron currentCauldron;
+
+    public SpoonStirController spoonStir;
     private void Update()
     {
         DetectReceiver();
     }
 
+    // =========================
+    // DETECT CAULDRON / RECEIVER
+    // =========================
     private void DetectReceiver()
     {
         currentReceiver = null;
@@ -43,23 +55,42 @@ public class PlayerInteraction : MonoBehaviour
         }
     }
 
+    // =========================
+    // TRIGGERS
+    // =========================
     private void OnTriggerEnter(Collider other)
     {
         if (other.TryGetComponent(out OrdersZone zone))
-        {
             currentOrdersZone = zone;
+
+        if (other.TryGetComponent(out StorageZone storage))
+            currentStorageZone = storage;
+
+        if (other.TryGetComponent(out BedTrigger bed))
+        {
+            currentBed = bed;
+            Debug.Log("[PLAYER] Enter bed zone");
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.TryGetComponent(out OrdersZone zone))
+        if (other.TryGetComponent(out OrdersZone zone) && currentOrdersZone == zone)
+            currentOrdersZone = null;
+
+        if (other.TryGetComponent(out StorageZone storage) && currentStorageZone == storage)
+            currentStorageZone = null;
+
+        if (other.TryGetComponent(out BedTrigger bed) && currentBed == bed)
         {
-            if (currentOrdersZone == zone)
-                currentOrdersZone = null;
+            currentBed = null;
+            Debug.Log("[PLAYER] Exit bed zone");
         }
     }
 
+    // =========================
+    // UI PANEL INTERACTION
+    // =========================
     public void OnPanel(InputValue value)
     {
         if (!value.isPressed) return;
@@ -70,9 +101,18 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
+        if (currentStorageZone != null)
+        {
+            currentStorageZone.Open();
+            return;
+        }
+
         Debug.Log("[PLAYER] Nothing to open");
     }
 
+    // =========================
+    // FINISH BREW
+    // =========================
     public void OnFinish(InputValue value)
     {
         if (!value.isPressed) return;
@@ -91,10 +131,16 @@ public class PlayerInteraction : MonoBehaviour
         {
             Debug.Log("[PLAYER] Current receiver cannot finish brewing");
         }
+        cameraFocus.ReturnToPlayer();
+
     }
 
+    // =========================
+    // CAULDRON ACTIONS
+    // =========================
     public void OnHeat(InputValue value)
     {
+        cameraFocus.FocusCauldron();
         if (!value.isPressed) return;
 
         if (currentReceiver is Cauldron cauldron && cauldron.UI != null)
@@ -105,11 +151,113 @@ public class PlayerInteraction : MonoBehaviour
 
     public void OnStir(InputValue value)
     {
+        Debug.Log("[OnStir] Called");
+
+        if (value == null)
+        {
+            Debug.LogError("[OnStir] InputValue is NULL");
+            return;
+        }
+
+        Debug.Log($"[OnStir] isPressed = {value.isPressed}");
+
+        if (!value.isPressed)
+        {
+            Debug.Log("[OnStir] Ignored (not pressed)");
+            return;
+        }
+
+        if (spoonStir == null)
+        {
+            Debug.LogError("[OnStir] spoonStir is NULL (not assigned in inspector)");
+            return;
+        }
+
+        Debug.Log("[OnStir] spoonStir OK");
+
+        if (!spoonStir.CanStir)
+        {
+            Debug.Log("[OnStir] BLOCKED - still stirring");
+            return;
+        }
+
+        Debug.Log("[OnStir] CanStir = TRUE");
+
+        if (currentReceiver == null)
+        {
+            Debug.LogError("[OnStir] currentReceiver is NULL");
+            return;
+        }
+
+        if (currentReceiver is Cauldron cauldron)
+        {
+            Debug.Log("[OnStir] Receiver is Cauldron");
+
+            if (cauldron.UI == null)
+            {
+                Debug.LogError("[OnStir] Cauldron.UI is NULL");
+                return;
+            }
+
+            Debug.Log("[OnStir] Calling cauldron.UI.Stir()");
+
+            cauldron.UI.Stir();
+
+            Debug.Log("[OnStir] Calling spoonStir.Stir()");
+
+            spoonStir.Stir();
+        }
+        else
+        {
+            Debug.Log("[OnStir] Receiver is NOT Cauldron");
+        }
+    }
+
+    // =========================
+    // INTERACT (INGREDIENTS)
+    // =========================
+    // =========================
+    // INTERACT (INGREDIENTS)
+    // =========================
+    public void OnInteract(InputValue value)
+    {
         if (!value.isPressed) return;
 
-        if (currentReceiver is Cauldron cauldron && cauldron.UI != null)
+        // 🔥 1. SLEEP має ПРІОРИТЕТ
+        if (currentBed != null)
         {
-            cauldron.UI.Stir();
+            currentBed.TrySleep();
+            return;
+        }
+
+        // 🔥 2. CAULDRON (Виправляємо помилку: зчитуємо казан із поточного знайденого ресівера)
+        if (currentReceiver is Cauldron cauldron)
+        {
+           
+            var inventory = playerInventory.Items;
+
+            foreach (var slot in inventory)
+            {
+                if (slot.amount <= 0)
+                    continue;
+
+                bool success = cauldron.TryAddFromInventory(
+                    playerInventory,
+                    slot.ingredient
+                );
+
+                if (success)
+                {
+                    Debug.Log("[PLAYER] Added ingredient to cauldron");
+                    return;
+                }
+            }
+
+            Debug.Log("[PLAYER] No ingredients to add");
+        }
+        else
+        {
+            Debug.Log("[PLAYER] No cauldron nearby (currentReceiver is not a Cauldron)");
         }
     }
 }

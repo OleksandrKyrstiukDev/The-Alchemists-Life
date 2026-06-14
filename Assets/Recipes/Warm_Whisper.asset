@@ -41,7 +41,8 @@ MonoBehaviour:
     alternatives: []
   - ingredient: {fileID: 11400000, guid: c2d3ad3abc743a94f92f02dc1bfb3c5a, type: 2}
     amount: 1
-    alternatives: []
+    alternatives:
+    - {fileID: 11400000, guid: 91d945a3fe8198449ade2e45f2e28e5b, type: 2}
   phases:
   - phaseName: prepare
     optimalTemperature: 40
@@ -58,3 +59,4 @@ MonoBehaviour:
     optimalStirCount: 2
     stirTolerance: 1
   sideEffects: []
+  icon: {fileID: -473993718, guid: a04c7a6ab5328224b973c456e9b9083c, type: 3}

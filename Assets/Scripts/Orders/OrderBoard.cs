@@ -1,23 +1,51 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class OrderBoard : MonoBehaviour
 {
-    public OrderObject[] orders;
-    public OrdersUI ordersUI;
+    [Header("All Orders")]
+    [SerializeField] private OrderObject[] orders;
 
-    private void Start()
+    [Header("References")]
+    [SerializeField] private OrdersUI ordersUI;
+
+    [SerializeField] private PlayerStats playerStats;
+
+    public void GenerateDailyOrders(int ordersCount)
     {
-        SpawnOrders();
-    }
+        Debug.Log("[OrderBoard] GenerateDailyOrders");
 
-    void SpawnOrders()
-    {
-        Debug.Log("SpawnOrders called");
+        ReputationTier playerTier = playerStats.CurrentTier;
 
-        foreach (var order in orders)
+        List<OrderObject> availableOrders = orders
+            .Where(order => order.requiredTier <= playerTier)
+            .ToList();
+
+        Debug.Log(
+            $"[OrderBoard] Available orders for {playerTier}: {availableOrders.Count}"
+        );
+
+        if (availableOrders.Count == 0)
         {
-            Debug.Log("Spawning: " + order.name);
-            ordersUI.CreateOrderItem(order);
+            Debug.LogWarning("[OrderBoard] No available orders!");
+            return;
+        }
+
+        availableOrders = availableOrders
+            .OrderBy(x => Random.value)
+            .ToList();
+
+        int count = Mathf.Min(
+            ordersCount,
+            availableOrders.Count
+        );
+
+        for (int i = 0; i < count; i++)
+        {
+            ordersUI.CreateOrderItem(
+                availableOrders[i]
+            );
         }
     }
 }

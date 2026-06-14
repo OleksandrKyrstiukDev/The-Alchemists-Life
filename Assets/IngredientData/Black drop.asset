@@ -19,16 +19,13 @@ MonoBehaviour:
     \u0432\u0435\u0434\u0435 \u0434\u043E \u0447\u043E\u0440\u043D\u043E\u0433\u043E
     \u0434\u0438\u043C\u0443."
   stability: 1
-  toxicity: 3
+  toxicity: 1.1
   potency: 2
   tempModifier: -0.6
   timeModifier: -0.3
   stirModifier: -0.2
-  tags:
-  - Forbidden
-  - Dark
-  - Unstable
+  tags: 0000000012000000140000001b000000
   affectsStartPhase: 0
   affectsBrewPhase: 1
   affectsFinishPhase: 1
-  icon: {fileID: 0}
+  icon: {fileID: -893607235, guid: 357212d7216dd9a47b00df75797be839, type: 3}

@@ -20,6 +20,11 @@ public class RecipeObject : ScriptableObject
 
     [Header("Side Effects")]
     public List<SideEffect> sideEffects;
+
+    public Sprite icon;
+
+    [Header("Progression")]
+    public ReputationTier requiredTier;
 }
 
 [System.Serializable]

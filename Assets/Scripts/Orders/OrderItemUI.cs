@@ -4,11 +4,13 @@ using UnityEngine.EventSystems;
 
 public class OrderItemUI : MonoBehaviour, IPointerClickHandler
 {
-    public TextMeshProUGUI clientNameText;
-    public TextMeshProUGUI shortDescriptionText;
+    [SerializeField] private TextMeshProUGUI clientNameText;
+    [SerializeField] private TextMeshProUGUI shortDescriptionText;
 
     private OrderObject order;
     private OrdersUI ordersUI;
+
+    public OrderObject CurrentOrder => order;
 
     public void Setup(OrderObject data, OrdersUI ui)
     {
@@ -21,24 +23,25 @@ public class OrderItemUI : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        Debug.Log("CLICK");
-        OpenDetails();
-    }
+        Debug.Log($"[OrderItemUI] CLICK: {order?.clientName}");
 
-    public void OpenDetails()
-    {
-        
+        if (ordersUI == null)
+        {
+            Debug.LogError("[OrderItemUI] OrdersUI is NULL");
+            return;
+        }
+
+        if (order == null)
+        {
+            Debug.LogError("[OrderItemUI] Order is NULL");
+            return;
+        }
+
         ordersUI.ShowOrder(order);
     }
 
-    public void OnPointerEnter(PointerEventData eventData)
+    public void RemoveSelf()
     {
-        Debug.Log("HOVER");
-        transform.localScale = Vector3.one * 1.05f;
-    }
-
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        transform.localScale = Vector3.one;
+        Destroy(gameObject);
     }
 }

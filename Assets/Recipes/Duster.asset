@@ -31,7 +31,8 @@ MonoBehaviour:
   requiredIngredients:
   - ingredient: {fileID: 11400000, guid: 61d2e7092001f9b428f3049b3059e9a6, type: 2}
     amount: 1
-    alternatives: []
+    alternatives:
+    - {fileID: 11400000, guid: 03b497f391e5b9f4192581b80786bee1, type: 2}
   - ingredient: {fileID: 11400000, guid: c2d3ad3abc743a94f92f02dc1bfb3c5a, type: 2}
     amount: 1
     alternatives: []
@@ -46,7 +47,7 @@ MonoBehaviour:
     timeTolerance: 3
     optimalStirCount: 0
     stirTolerance: 1
-  - phaseName: "\u0412\u0430\u0440\u0456\u043D\u043D\u044F"
+  - phaseName: brew
     optimalTemperature: 65
     temperatureTolerance: 8
     optimalTime: 10
@@ -56,11 +57,12 @@ MonoBehaviour:
   sideEffects:
   - effectName: "\u041A\u0430\u043B\u0430\u043C\u0443\u0442\u043D\u0438\u0439 \u0442\u0443\u043C\u0430\u043D"
     description: 
-    chance: 0.3
+    chance: 0.097
   - effectName: "\u0413\u0440\u0443\u0434\u043A\u0443\u0432\u0430\u0442\u0438\u0439
       \u043E\u0441\u0430\u0434"
     description: 
-    chance: 0.4
+    chance: 0.103
   - effectName: "\u0421\u0443\u0445\u0435 \u043F\u043E\u0432\u0456\u0442\u0440\u044F"
     description: 
-    chance: 0.2
+    chance: 0.097
+  icon: {fileID: -729089177, guid: a04c7a6ab5328224b973c456e9b9083c, type: 3}

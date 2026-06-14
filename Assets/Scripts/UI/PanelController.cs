@@ -9,11 +9,6 @@ public class PanelController : MonoBehaviour
     private GameObject currentPanel;
     private bool isOpen;
 
-    private void Start()
-    {
-        CloseAll();
-    }
-
     public void OpenOrders()
     {
         OpenPanel(ordersPanel);
@@ -42,6 +37,9 @@ public class PanelController : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+
+        // 🔥 ADD THIS
+        Canvas.ForceUpdateCanvases();
     }
 
     public void CloseAll()
@@ -52,7 +50,6 @@ public class PanelController : MonoBehaviour
         currentPanel = null;
         isOpen = false;
 
-        Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 }

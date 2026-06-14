@@ -1,4 +1,6 @@
-﻿using TMPro;
+﻿using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,6 +8,9 @@ public class OrdersUI : MonoBehaviour
 {
     [Header("Panels")]
     [SerializeField] private GameObject detailsPanel;
+    [SerializeField] private GameObject ordersListPanel;
+
+    private List<OrderItemUI> spawnedItems = new();
 
     [Header("Details")]
     public Image portrait;
@@ -17,28 +22,48 @@ public class OrdersUI : MonoBehaviour
     [Header("Buttons")]
     public Button submitButton;
     public Button declineButton;
+    public Button closeDetailsButton;
+
+    [Header("Systems")]
+    [SerializeField] private PlayerStats playerStats;
+    private PlayerUsePotion playerUsePotion;
 
     private OrderObject currentOrder;
-    private PlayerUsePotion playerUsePotion;
 
     [Header("Order List")]
     [SerializeField] private Transform listContainer;
     [SerializeField] private OrderItemUI orderItemPrefab;
+
     private void Awake()
     {
-        if (playerUsePotion == null)
-            playerUsePotion = FindFirstObjectByType<PlayerUsePotion>();
+        playerUsePotion = FindFirstObjectByType<PlayerUsePotion>();
 
-        if (detailsPanel != null)
-            detailsPanel.SetActive(false);
+        detailsPanel.SetActive(false);
+
+        if (closeDetailsButton != null)
+            closeDetailsButton.onClick.AddListener(CloseDetails);
     }
 
+    // =========================
+    // CREATE LIST ITEM
+    // =========================
+    public void CreateOrderItem(OrderObject order)
+    {
+        OrderItemUI item = Instantiate(orderItemPrefab, listContainer);
+        item.Setup(order, this);
+
+        spawnedItems.Add(item);
+    }
+
+    // =========================
+    // OPEN DETAILS
+    // =========================
     public void ShowOrder(OrderObject order)
     {
         currentOrder = order;
 
-        if (detailsPanel != null)
-            detailsPanel.SetActive(true);
+        ordersListPanel.SetActive(false);
+        detailsPanel.SetActive(true);
 
         portrait.sprite = order.portrait;
 
@@ -50,8 +75,6 @@ public class OrdersUI : MonoBehaviour
             $"Gold: {order.goldReward}\nRep: {order.reputationReward}";
 
         UpdateButtons();
-
-        Debug.Log($"[OrdersUI] Opened order: {order.clientName}");
     }
 
     private void UpdateButtons()
@@ -61,70 +84,92 @@ public class OrdersUI : MonoBehaviour
             playerUsePotion.HasPotion;
     }
 
+    // =========================
+    // SUBMIT ORDER
+    // =========================
     public void SubmitPotion()
     {
-        if (currentOrder == null)
+        if (currentOrder == null) return;
+        if (playerUsePotion == null || !playerUsePotion.HasPotion) return;
+
+        BrewedPotionData? potion = playerUsePotion.CurrentPotionData;
+
+        if (!potion.HasValue)
+        {
+            Debug.LogWarning("[OrdersUI] Potion data missing");
             return;
+        }
 
-        PotionData potion = playerUsePotion.CurrentPotionData;
-
-        OrderResult result =
-            OrderEvaluator.Evaluate(currentOrder, potion);
+        OrderResult result = OrderEvaluator.Evaluate(currentOrder, potion.Value);
 
         switch (result)
         {
             case OrderResult.Perfect:
-                Debug.Log("[ORDER] PERFECT");
+                playerStats.AddGold(currentOrder.goldReward);
+                playerStats.AddReputation(currentOrder.reputationReward);
                 break;
 
             case OrderResult.Medium:
-                Debug.Log("[ORDER] MEDIUM");
+                playerStats.AddGold(Mathf.RoundToInt(currentOrder.goldReward * 0.5f));
+                playerStats.AddReputation(Mathf.RoundToInt(currentOrder.reputationReward * 0.5f));
                 break;
 
             case OrderResult.Fail:
-                Debug.Log("[ORDER] FAIL");
+                playerStats.RemoveReputation(1);
                 break;
         }
 
         playerUsePotion.RemovePotion();
 
+        RemoveOrder(currentOrder);
+        if (DayManager.Instance != null)
+            DayManager.Instance.CompleteOrder();
+        else
+            Debug.LogError("[OrdersUI] DayManager.Instance is NULL");
         CloseDetails();
     }
 
+    // =========================
+    // DECLINE ORDER
+    // =========================
     public void DeclineOrder()
     {
-        Debug.Log("[ORDER] Declined");
+        if (currentOrder != null && playerStats != null)
+        {
+            playerStats.RemoveReputation(currentOrder.declinePenalty);
+        }
 
+        RemoveOrder(currentOrder);
+        if (DayManager.Instance != null)
+            DayManager.Instance.CompleteOrder();
+        else
+            Debug.LogError("[OrdersUI] DayManager.Instance is NULL");
         CloseDetails();
     }
 
+    // =========================
+    // CLOSE DETAILS
+    // =========================
     private void CloseDetails()
     {
         currentOrder = null;
 
-        if (detailsPanel != null)
-            detailsPanel.SetActive(false);
+        detailsPanel.SetActive(false);
+        ordersListPanel.SetActive(true);
     }
 
-    public void CreateOrderItem(OrderObject order)
+    // =========================
+    // REMOVE UI ITEM
+    // =========================
+    public void RemoveOrder(OrderObject order)
     {
-        if (orderItemPrefab == null)
+        OrderItemUI item = spawnedItems
+            .FirstOrDefault(x => x.CurrentOrder == order);
+
+        if (item != null)
         {
-            Debug.LogError("[OrdersUI] OrderItemPrefab is NULL");
-            return;
+            spawnedItems.Remove(item);
+            item.RemoveSelf();
         }
-
-        if (listContainer == null)
-        {
-            Debug.LogError("[OrdersUI] ListContainer is NULL");
-            return;
-        }
-
-        OrderItemUI item =
-            Instantiate(orderItemPrefab, listContainer);
-
-        item.Setup(order, this);
-
-        Debug.Log($"[OrdersUI] Created item: {order.clientName}");
     }
 }

@@ -28,5 +28,8 @@ public class IngredientData : ScriptableObject
     public bool affectsFinishPhase = true;  
 
     [Header("Optional")]
-    public Sprite icon; 
+    public Sprite icon;
+
+    [Header("Price")]
+    public int buyPrice = 5;
 }

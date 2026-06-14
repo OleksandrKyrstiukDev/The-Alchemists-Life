@@ -128,6 +128,7 @@ MonoBehaviour:
   perfectColor: {r: 0.062477656, g: 0.8490566, b: 0.8490566, a: 1}
   goodColor: {r: 0, g: 1, b: 0.047241926, a: 1}
   failColor: {r: 1, g: 0, b: 0, a: 1}
+  data: {fileID: 0}
 --- !u!1 &1991616149649903770
 GameObject:
   m_ObjectHideFlags: 0
@@ -142,6 +143,7 @@ GameObject:
   - component: {fileID: 4762710276885677793}
   - component: {fileID: -3412703196794863546}
   - component: {fileID: 7063051898400091802}
+  - component: {fileID: 4205216079774988101}
   m_Layer: 0
   m_Name: Sphere
   m_TagString: Untagged
@@ -258,6 +260,7 @@ MonoBehaviour:
   perfectColor: {r: 0.062477656, g: 0.8490566, b: 0.8490566, a: 1}
   goodColor: {r: 0, g: 1, b: 0.047241926, a: 1}
   failColor: {r: 1, g: 0, b: 0, a: 1}
+  data: {fileID: 0}
 --- !u!54 &7063051898400091802
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -285,3 +288,15 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &4205216079774988101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1991616149649903770}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f2d29370d16c164796d5df8af279c05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Potion

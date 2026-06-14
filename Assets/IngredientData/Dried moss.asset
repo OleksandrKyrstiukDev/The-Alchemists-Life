@@ -22,8 +22,8 @@ MonoBehaviour:
   tempModifier: 0.3
   timeModifier: 0.1
   stirModifier: 0.2
-  tags: 01000000070000000500000009000000
+  tags: 010000000200000013000000090000000b000000
   affectsStartPhase: 1
   affectsBrewPhase: 1
   affectsFinishPhase: 0
-  icon: {fileID: 0}
+  icon: {fileID: 1479794905, guid: 357212d7216dd9a47b00df75797be839, type: 3}

@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6905ddd2fb66b9548b031111071145fe, type: 3}
+  m_Name: Garden
+  m_EditorClassIdentifier: Assembly-CSharp::ObjectiveData
+  title: Goal 4. Revive the Garden
+  steps:
+  - {fileID: 11400000, guid: 854b7a6065b1d284a94342b172f6e5c5, type: 2}
+  - {fileID: 11400000, guid: e399038e6601992439e8572bc05a51df, type: 2}
+  - {fileID: 11400000, guid: 8dbef3cd555f8414487bdfb80995d0f4, type: 2}

@@ -14,15 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::IngredientData
   id: bitterMold
   displayName: "\u0413\u0456\u0440\u043A\u0430 \u0446\u0432\u0456\u043B\u044C"
-  description: 
+  description: "\u041C\u043E\u0440\u0430\u043B\u044C\u043D\u043E \u0456 \u043C\u0435\u0445\u0430\u043D\u0456\u0447\u043D\u043E
+    \u043D\u0435\u043F\u0440\u0438\u0454\u043C\u043D\u0430."
   stability: 1
   toxicity: 3
   potency: 2
   tempModifier: 0.3
   timeModifier: 0
   stirModifier: -0.4
-  tags: 0200000008000000
+  tags: 090000001b000000000000001a000000
   affectsStartPhase: 0
   affectsBrewPhase: 1
   affectsFinishPhase: 0
-  icon: {fileID: 0}
+  icon: {fileID: 752621286, guid: 357212d7216dd9a47b00df75797be839, type: 3}

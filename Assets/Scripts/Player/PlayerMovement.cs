@@ -6,6 +6,8 @@ public class PlayerMovement : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Transform cameraTransform;
+    [SerializeField] private Animator animator;
+    [SerializeField] private PlayerUsePotion playerUsePotion;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 6f;
@@ -18,11 +20,11 @@ public class PlayerMovement : MonoBehaviour
 
     private CharacterController controller;
     private PlayerInputActions inputActions;
-    [SerializeField] private Animator animator;
     private Vector2 moveInput;
     private float verticalVelocity;
     private float turnSmoothVelocity;
 
+    private const int UpperBodyLayer = 1;
 
     private void Awake()
     {
@@ -42,19 +44,34 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-
         ReadInput();
         ApplyGravity();
         UpdateAnimation();
+        UpdatePotionLayer();
         Move();
-
     }
+
     private void UpdateAnimation()
     {
-        float moveAmount = moveInput.magnitude;
-
         animator.SetFloat("Move", moveInput.magnitude, 0.1f, Time.deltaTime);
     }
+
+    private void UpdatePotionLayer()
+    {
+        bool hasPotion =
+            playerUsePotion != null &&
+            playerUsePotion.HasPotion;
+
+        float targetWeight = hasPotion ? 1f : 0f;
+
+        float currentWeight = animator.GetLayerWeight(UpperBodyLayer);
+
+        animator.SetLayerWeight(
+            UpperBodyLayer,
+            Mathf.Lerp(currentWeight, targetWeight, Time.deltaTime * 10f)
+        );
+    }
+
     private void ReadInput()
     {
         moveInput = inputActions.Player.Move.ReadValue<Vector2>();
@@ -63,13 +80,9 @@ public class PlayerMovement : MonoBehaviour
     private void ApplyGravity()
     {
         if (controller.isGrounded && verticalVelocity < 0f)
-        {
             verticalVelocity = groundedForce;
-        }
         else
-        {
             verticalVelocity += gravity * gravityMultiplier * Time.deltaTime;
-        }
     }
 
     private void Move()
@@ -78,8 +91,9 @@ public class PlayerMovement : MonoBehaviour
 
         if (direction.magnitude >= 0.1f)
         {
-            float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg
-                                + cameraTransform.eulerAngles.y;
+            float targetAngle =
+                Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg
+                + cameraTransform.eulerAngles.y;
 
             float angle = Mathf.SmoothDampAngle(
                 transform.eulerAngles.y,
@@ -89,7 +103,6 @@ public class PlayerMovement : MonoBehaviour
             );
 
             transform.rotation = Quaternion.Euler(0f, angle, 0f);
-
             direction = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
         }
 

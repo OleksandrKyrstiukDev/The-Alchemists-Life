@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62266202b83fb234bb97f067fbd604eb, type: 3}
+  m_Name: Black_Sip
+  m_EditorClassIdentifier: Assembly-CSharp::RecipeObject
+  id: black_sip
+  displayName: "\u0427\u043E\u0440\u043D\u0438\u0439 \u043A\u043E\u0432\u0442\u043E\u043A"
+  description: "\u0421\u0438\u043B\u044C\u043D\u0430 \u043F\u0440\u044F\u043C\u043E\u043B\u0456\u043D\u0456\u0439\u043D\u0430
+    \u043E\u0442\u0440\u0443\u0442\u0430 \u0434\u043B\u044F \u043D\u0435\u0431\u0435\u0437\u043F\u0435\u0447\u043D\u0438\u0445
+    \u0456 \u0442\u0435\u043C\u043D\u0438\u0445 \u0446\u0456\u043B\u0435\u0439."
+  instructions: "\u0427\u043E\u0440\u043D\u0443 \u043A\u0440\u0430\u043F\u043B\u044E
+    \u0434\u043E\u0434\u0430\u0432\u0430\u0442\u0438 \u0441\u0442\u0440\u043E\u0433\u043E
+    \u043E\u0441\u0442\u0430\u043D\u043D\u044C\u043E\u044E \u0432 \u0441\u0430\u043C\u043E\u043C\u0443
+    \u043A\u0456\u043D\u0446\u0456 \u043F\u0440\u043E\u0446\u0435\u0441\u0443. \u0423
+    \u043F\u0440\u043E\u0446\u0435\u0441\u0456 \u0432\u0430\u0440\u0456\u043D\u043D\u044F
+    \u043D\u0435 \u0432\u0434\u0438\u0445\u0430\u0442\u0438 \u0442\u043E\u043A\u0441\u0438\u0447\u043D\u0456
+    \u043F\u0430\u0440\u0438 \u043D\u0430\u0434 \u043A\u043E\u0442\u043B\u043E\u043C!"
+  requiredIngredients:
+  - ingredient: {fileID: 11400000, guid: 61d2e7092001f9b428f3049b3059e9a6, type: 2}
+    amount: 1
+    alternatives:
+    - {fileID: 11400000, guid: 369641e25d348534e8eeccd105634b2d, type: 2}
+  - ingredient: {fileID: 11400000, guid: f85d6aa5303d5f24aa248b7430d8afbd, type: 2}
+    amount: 2
+    alternatives: []
+  - ingredient: {fileID: 11400000, guid: 5d2dd4b6968cdf14f82b021a7c11b362, type: 2}
+    amount: 1
+    alternatives: []
+  phases:
+  - phaseName: prepare
+    optimalTemperature: 60
+    temperatureTolerance: 10
+    optimalTime: 7
+    timeTolerance: 2
+    optimalStirCount: 3
+    stirTolerance: 1
+  - phaseName: brew
+    optimalTemperature: 75
+    temperatureTolerance: 4
+    optimalTime: 4
+    timeTolerance: 1
+    optimalStirCount: 2
+    stirTolerance: 0
+  sideEffects: []
+  icon: {fileID: 1016016898, guid: a04c7a6ab5328224b973c456e9b9083c, type: 3}
+  requiredTier: 4

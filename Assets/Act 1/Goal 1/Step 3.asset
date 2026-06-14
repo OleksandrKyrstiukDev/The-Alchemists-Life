@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d35f665c31f2a8e47bff46a93fd94f3e, type: 3}
   m_Name: Step 3
   m_EditorClassIdentifier: Assembly-CSharp::TaskStepData
-  id: light
-  description: "\u0417\u0430\u043F\u0430\u043B\u0438\u0442\u0438 \u0437\u0432\u0456\u0442\u043B\u043E"
+  id: clean_room
+  description: "\u041F\u0440\u0438\u0431\u0440\u0430\u0442\u0438 \u0443 \u0432\u0456\u0442\u0430\u043B\u044C\u043D\u0456"
   type: 1
-  requiredAmount: 2
+  requiredAmount: 1

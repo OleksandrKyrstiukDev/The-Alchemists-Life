@@ -39,7 +39,6 @@ public class PickUpIngredient : MonoBehaviour
         Collider[] hits = Physics.OverlapSphere(
             transform.position + Vector3.up * 2,
             cauldronRadius
-            
         );
 
         foreach (var hit in hits)
@@ -47,13 +46,23 @@ public class PickUpIngredient : MonoBehaviour
             if (!hit.TryGetComponent(out IIngredientReceiver receiver))
                 continue;
 
-            IngredientData data = CurrentIngredient.data;
+            var ingredientObj = CurrentIngredient;
 
-            receiver.Receive(data);
-            ConsumeHeldIngredient();
+            if (ingredientObj == null)
+                return false;
 
-            Debug.Log("[INTERACT] Ingredient given");
-            return true;
+            IngredientData data = ingredientObj.data;
+
+            if (receiver.CanReceive(data))
+            {
+                receiver.Receive(data);
+
+                ConsumeHeldIngredient();
+
+                Debug.Log("[PLAYER] Added ingredient to cauldron");
+
+                return true;
+            }
         }
 
         return false;

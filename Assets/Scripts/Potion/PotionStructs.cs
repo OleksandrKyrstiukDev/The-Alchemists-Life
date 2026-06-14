@@ -14,6 +14,18 @@ public enum PotionPurpose
     Poison,
     Healing,
     Clean,
+    Maintenance,
+    Weather,
+    Foraging,
+    PlantCare,
+    Purification,
+    Energy,
+    Stamina,
+    Charisma,
+    Buff,
+    Explosion,
+    Transformation,
+    Illusion,
     None
 }
 

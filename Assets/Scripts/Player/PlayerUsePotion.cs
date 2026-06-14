@@ -6,14 +6,14 @@ public class PlayerUsePotion : MonoBehaviour
     [Header("Potion")]
     [SerializeField] private Transform handTransform;
 
-    private BrewedPotion currentPotion;
-    private bool hasPotion;
     private PotionObject potionInHand;
     private PotionZone currentZone;
 
     public void OnInteract(InputValue value)
     {
         if (!value.isPressed) return;
+
+        Debug.Log("[PlayerUsePotion] INPUT: Interact");
         UsePotion();
     }
 
@@ -21,73 +21,90 @@ public class PlayerUsePotion : MonoBehaviour
     {
         var zone = other.GetComponent<PotionZone>();
         if (zone != null)
+        {
             currentZone = zone;
+            Debug.Log($"[PlayerUsePotion] ENTER ZONE: {zone.name}");
+        }
     }
 
     void OnTriggerExit(Collider other)
     {
         var zone = other.GetComponent<PotionZone>();
         if (zone == currentZone)
+        {
             currentZone = null;
+            Debug.Log($"[PlayerUsePotion] EXIT ZONE");
+        }
     }
 
     void UsePotion()
     {
         if (potionInHand == null)
         {
-            Debug.Log("[PlayerUsePotion] No potion in hand");
+            Debug.LogWarning("[PlayerUsePotion] No potion in hand");
             return;
         }
 
         if (currentZone == null)
         {
-            Debug.Log("[PlayerUsePotion] No potion zone");
+            Debug.LogWarning("[PlayerUsePotion] No zone");
             return;
         }
 
         if (!currentZone.CanApply(potionInHand))
         {
-            Debug.Log("[PlayerUsePotion] Potion not in zone"); 
+            Debug.LogWarning("[PlayerUsePotion] Zone rejected potion");
             return;
         }
 
         currentZone.Apply(potionInHand);
-        Destroy(potionInHand.gameObject);
 
+        Destroy(potionInHand.gameObject);
         potionInHand = null;
 
-        Debug.Log("[PlayerUsePotion] Potion used");
+        Debug.Log("[PlayerUsePotion] Potion used SUCCESS");
     }
 
     public void GivePotion(BrewedPotion potion)
     {
+        if (potion.prefab == null)
+        {
+            Debug.LogError("[PlayerUsePotion] prefab is NULL");
+            return;
+        }
+
         if (potionInHand != null)
             Destroy(potionInHand.gameObject);
 
-        currentPotion = potion;
+        GameObject go = Instantiate(
+      potion.prefab,
+      handTransform.position,
+      handTransform.rotation,
+      handTransform
+  );
 
-        GameObject potionGO = Instantiate(
-            potion.prefab,
-            handTransform.position,
-            handTransform.rotation,
-            handTransform
-        );
+        go.transform.localPosition = Vector3.zero;
+        go.transform.localRotation = Quaternion.identity;
 
-        potionGO.transform.localPosition = Vector3.zero;
-        potionGO.transform.localRotation = Quaternion.identity;
-        potionGO.transform.localScale = Vector3.one;
-
-        if (potionGO.TryGetComponent(out Rigidbody rb))
+        if (go.TryGetComponent(out Rigidbody rb))
             rb.isKinematic = true;
 
-        foreach (var c in potionGO.GetComponentsInChildren<Collider>())
+        foreach (var c in go.GetComponentsInChildren<Collider>())
             c.isTrigger = true;
 
-        potionInHand = potionGO.GetComponent<PotionObject>();
+        potionInHand = go.GetComponent<PotionObject>();
+
+        if (potionInHand == null)
+        {
+            Debug.LogError("[PlayerUsePotion] Missing PotionObject on prefab");
+            return;
+        }
+
         potionInHand.Init(potion.data);
 
-        Debug.Log($"[PlayerUsePotion] Potion in hand: {potion.data.name}");
+        Debug.Log($"[PlayerUsePotion] Got potion: {potion.data.name}");
     }
+
     public void RemovePotion()
     {
         if (potionInHand != null)
@@ -95,10 +112,11 @@ public class PlayerUsePotion : MonoBehaviour
 
         potionInHand = null;
 
-        Debug.Log("[PlayerUsePotion] Potion removed");
+        Debug.Log("[PlayerUsePotion] Removed potion");
     }
+
     public bool HasPotion => potionInHand != null;
 
-    public PotionData CurrentPotionData =>
-        potionInHand != null ? potionInHand.data : null;
+    public BrewedPotionData? CurrentPotionData =>
+        potionInHand != null ? potionInHand.Data : null;
 }

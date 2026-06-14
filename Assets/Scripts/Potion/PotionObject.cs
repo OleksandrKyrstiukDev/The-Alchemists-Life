@@ -7,29 +7,19 @@ public class PotionObject : MonoBehaviour
     [SerializeField] private Color goodColor = new Color(1f, 0.45f, 0.2f);
     [SerializeField] private Color failColor = Color.red;
 
-    private Renderer rend;
-
+    [SerializeField] private Renderer liquidRenderer;
     public PotionData data;
-
     public void Init(BrewedPotionData data)
     {
         Data = data;
 
         LogPotionData();
 
-        rend = GetComponentInChildren<Renderer>(true);
-        if (rend == null)
-        {
-            Debug.LogError("PotionObject: Renderer не знайдено в Init");
-            return;
-        }
 
-        Debug.Log($"[PotionObject] Renderer: {rend.gameObject.name}");
-        Debug.Log($"[PotionObject] Materials count: {rend.materials.Length}");
 
         ApplyColor(data.result);
-    }
 
+    }
     void ApplyColor(BrewResult result)
     {
         Color c = result switch
@@ -42,15 +32,15 @@ public class PotionObject : MonoBehaviour
 
         var block = new MaterialPropertyBlock();
 
-        rend.GetPropertyBlock(block);
+        liquidRenderer.GetPropertyBlock(block);
 
         block.SetColor("_BaseColor", c);
         block.SetColor("_Color", c);
         block.SetColor("_EmissionColor", c * 0.5f);
 
-        rend.SetPropertyBlock(block);
+        liquidRenderer.SetPropertyBlock(block);
 
-        Debug.Log($"[PotionObject] Color applied via PropertyBlock: {c}");
+        Debug.Log($"[PotionObject] Liquid color applied: {c}");
     }
 
     void LogPotionData()

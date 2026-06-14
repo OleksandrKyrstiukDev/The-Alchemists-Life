@@ -1,32 +1,30 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class StorageZone : MonoBehaviour
 {
     [SerializeField] private PanelController panelController;
 
-    private bool playerInside;
+    public bool PlayerInside { get; private set; }
 
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
 
-        playerInside = true;
+        PlayerInside = true;
+        Debug.Log("[Storage] Enter");
     }
 
     private void OnTriggerExit(Collider other)
     {
         if (!other.CompareTag("Player")) return;
 
-        playerInside = false;
+        PlayerInside = false;
+        Debug.Log("[Storage] Exit");
     }
 
-    public void OnPanel(InputValue value)
+    public void Open()
     {
-        if (!value.isPressed) return;
-
-        if (!playerInside) return;
-
         panelController.OpenStorage();
+        Debug.Log(panelController);
     }
 }

@@ -8,6 +8,10 @@ public class CauldronUI : MonoBehaviour
     [Header("References")]
     [SerializeField] private Cauldron cauldron;
 
+    [Header("Canvas")]
+    [SerializeField] private GameObject panel;
+    [SerializeField] private GameObject stir;
+
     [Header("Temperature UI")]
     [SerializeField] private Image temperatureBar;
     [SerializeField] private float minTemp = 0f;
@@ -56,6 +60,12 @@ public class CauldronUI : MonoBehaviour
     {
         if (cauldron != null)
             cauldron.RegisterUI(this);
+
+        if (panel != null)
+            panel.SetActive(false);
+
+        if (stir != null)
+            stir.SetActive(false);
     }
 
     private void Update()
@@ -149,12 +159,18 @@ public class CauldronUI : MonoBehaviour
         if (!brewingStarted)
         {
             brewingStarted = true;
+
+            if (panel != null)
+                panel.SetActive(true);
+
+            if (stir != null)
+                stir.SetActive(true);
+
             cauldron.OnBrewingStarted();
         }
 
         Temperature += 5f;
     }
-
     public void Stir()
     {
         if (!brewingStarted)
@@ -209,7 +225,7 @@ public class CauldronUI : MonoBehaviour
 
         stirText.text = "0";
         cauldron.OnBrewingFinished();
-
+        
     }
 
     public void ShowFeedback(BrewResultData resultData)

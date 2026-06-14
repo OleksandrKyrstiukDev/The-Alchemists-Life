@@ -7,8 +7,10 @@ public class GameController : MonoBehaviour
     public UIController ui;
 
     private bool finished = false;
-
     private float lastProgress = -1f;
+
+    private Color warmLightColor = new Color(1f, 0.85f, 0.65f); // теплий світ
+    private Color finalLightColor = new Color(1f, 0.95f, 0.8f); // майже білий теплий
 
     void Update()
     {
@@ -33,13 +35,18 @@ public class GameController : MonoBehaviour
         finished = true;
 
         sceneLight.intensity = 2f;
-        sceneLight.color = Color.yellow;
+        sceneLight.color = finalLightColor;
     }
 
     void UpdateWorldVisuals(float progress)
     {
-
+        // тільки теплий діапазон
         sceneLight.intensity = Mathf.Lerp(0.5f, 2f, progress);
-        sceneLight.color = Color.Lerp(Color.blue, Color.yellow, progress);
+
+        sceneLight.color = Color.Lerp(
+            warmLightColor,
+            finalLightColor,
+            progress
+        );
     }
 }
