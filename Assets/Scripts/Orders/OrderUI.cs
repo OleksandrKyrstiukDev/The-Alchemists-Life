@@ -72,7 +72,7 @@ public class OrdersUI : MonoBehaviour
         restrictionsText.text = order.restrictions;
 
         rewardsText.text =
-            $"Gold: {order.goldReward}\nRep: {order.reputationReward}";
+            $"Монети: {order.goldReward}\n Репутація: {order.reputationReward}";
 
         UpdateButtons();
     }

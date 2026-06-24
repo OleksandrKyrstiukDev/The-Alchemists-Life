@@ -4,13 +4,14 @@ using UnityEngine;
 
 public enum CauldronPhase { Idle, Prep, Brew }
 
-public struct PrepResult { 
-    public float riskMultiplier; 
-    public float temperatureBias; 
-    public int stirBias; 
-    public float stabilityBonus; 
-    public float prepTime; 
-    public float avgPrepTemperature; 
+public struct PrepResult
+{
+    public float riskMultiplier;
+    public float temperatureBias;
+    public int stirBias;
+    public float stabilityBonus;
+    public float prepTime;
+    public float avgPrepTemperature;
     public static PrepResult Neutral => new PrepResult { riskMultiplier = 1f, temperatureBias = 0f, stirBias = 0, stabilityBonus = 0f };
 }
 
@@ -36,6 +37,12 @@ public class Cauldron : MonoBehaviour, IIngredientReceiver, IBrewFinishReceiver
     [SerializeField] private CameraFocusController cameraFocus;
     public CauldronPhase CurrentPhase { get; private set; } = CauldronPhase.Idle;
 
+    [Header("World Popup")]
+    [SerializeField] private IngredientPopupWorld popupPrefab;
+    [SerializeField] private Transform popupPoint;
+
+    [SerializeField]
+    private ParticleSystem ingredientParticles;
     public static IngredientTag GetDominantTag(List<IngredientData> ingredients)
     {
         if (ingredients == null || ingredients.Count == 0)
@@ -69,12 +76,12 @@ public class Cauldron : MonoBehaviour, IIngredientReceiver, IBrewFinishReceiver
     {
         CurrentPhase = CauldronPhase.Idle;
 
-        // Вимикаємо всі об'єкти з масиву
-        ToggleBrewingObjects(false);
+        // Вимикаємо всі об'єкти з масиву
+        ToggleBrewingObjects(false);
     }
 
-    // Допоміжний метод для безпечного перемикання стану об'єктів
-    private void ToggleBrewingObjects(bool activate)
+    // Допоміжний метод для безпечного перемикання стану об'єктів
+    private void ToggleBrewingObjects(bool activate)
     {
         if (objectsToActivateOnBrew == null) return;
 
@@ -115,12 +122,12 @@ public class Cauldron : MonoBehaviour, IIngredientReceiver, IBrewFinishReceiver
     }
 
     public void Brew(
-     float finalTemperature,
-     int stirCount,
-     float greenTime,
-     float yellowTime,
-     float redTime
- )
+    float finalTemperature,
+    int stirCount,
+    float greenTime,
+    float yellowTime,
+    float redTime
+  )
     {
         Debug.Log($"[CAULDRON] Спроба викликати Brew! hasBrewed: {hasBrewed}, Кількість інгредієнтів: {ingredients.Count}");
 
@@ -178,7 +185,6 @@ public class Cauldron : MonoBehaviour, IIngredientReceiver, IBrewFinishReceiver
         {
             extraPenalty += ingredients.Count * 0.1f;
         }
-
         BrewResult result = CauldronProcess.Evaluate(
             ingredients,
             feedback,
@@ -194,6 +200,7 @@ public class Cauldron : MonoBehaviour, IIngredientReceiver, IBrewFinishReceiver
             currentMatch.confidence
         );
 
+
         BrewResultData resultData = new BrewResultData
         {
             result = result,
@@ -202,13 +209,44 @@ public class Cauldron : MonoBehaviour, IIngredientReceiver, IBrewFinishReceiver
 
         UI.ShowFeedback(resultData);
 
-        bool underheated = feedback.Any(f => f.type == BrewMistakeType.Underheated);
-        bool overheated = feedback.Any(f => f.type == BrewMistakeType.Overheated);
+
+        // ===============================
+        // RECIPE KNOWLEDGE
+        // ===============================
+
+        if (currentMatch.recipe != null)
+        {
+            foreach (var mistake in feedback)
+            {
+                RecipeKnowledgeManager.Instance.RegisterMistake(
+                    currentMatch.recipe,
+                    mistake.type
+                );
+            }
+        }
+
+
+        // ===============================
+        // NAME GENERATION
+        // ===============================
+
+        bool underheated =
+            feedback.Any(f => f.type == BrewMistakeType.Underheated);
+
+        bool overheated =
+            feedback.Any(f => f.type == BrewMistakeType.Overheated);
+
+
         var context = new BrewNameContext
         {
             result = result,
-            avgStability = SafeAverage(ingredients, i => i.stability, 1f),
-            avgToxicity = SafeAverage(ingredients, i => i.toxicity, 0f),
+
+            avgStability =
+                SafeAverage(ingredients, i => i.stability, 1f),
+
+            avgToxicity =
+                SafeAverage(ingredients, i => i.toxicity, 0f),
+
             avgTemperature = finalTemperature,
 
             underheated = underheated,
@@ -216,23 +254,29 @@ public class Cauldron : MonoBehaviour, IIngredientReceiver, IBrewFinishReceiver
 
             dominantTag = GetDominantTag(ingredients),
 
-            recipeName = currentMatch.recipe != null
+            recipeName =
+                currentMatch.recipe != null
                 ? currentMatch.recipe.displayName
                 : null,
 
             isExperimental = currentMatch.isExperimental
         };
 
+
         string potionName =
             titleGeneration != null
-                ? titleGeneration.Generate(context)
-                : "Невідоме зілля";
+            ? titleGeneration.Generate(context)
+            : "Невідоме зілля";
+
 
         Debug.Log($"[PLAYER POTION NAME] {potionName}");
 
+
         LogFinalReport(result, prep);
 
+
         SpawnPotion(result, potionName);
+
 
         if (potionPopup != null)
         {
@@ -243,6 +287,7 @@ public class Cauldron : MonoBehaviour, IIngredientReceiver, IBrewFinishReceiver
             Debug.LogWarning("[CAULDRON] PotionPopupUI not assigned");
         }
 
+
         ResetCauldron();
     }
 
@@ -250,7 +295,7 @@ public class Cauldron : MonoBehaviour, IIngredientReceiver, IBrewFinishReceiver
     IEnumerable<T> source,
     System.Func<T, float> selector,
     float fallback = 0f
-)
+  )
     {
         if (source == null) return fallback;
 
@@ -311,9 +356,9 @@ public class Cauldron : MonoBehaviour, IIngredientReceiver, IBrewFinishReceiver
         BrewedPotion brewedPotion = new BrewedPotion
         {
             data = runtimeData,
-            prefab = potionPrefab // тільки prefab reference
-        };
-
+            prefab = potionPrefab 
+        };
+        CheckPotionQuest(runtimeData);
         playerUsePotion.GivePotion(brewedPotion);
 
         Debug.Log("[SpawnPotion] Sent to PlayerUsePotion");
@@ -325,27 +370,27 @@ public class Cauldron : MonoBehaviour, IIngredientReceiver, IBrewFinishReceiver
 
         return tag switch
         {
-            // === ЦІЛЬОВІ ТЕГИ ЗІЛЛЯ -> МЕТА ЗІЛЛЯ ===
-            IngredientTag.Heating => PotionPurpose.Heating,        // Теплий шепіт
-            IngredientTag.WallRepair => PotionPurpose.Repair,         // Тріщинозбір
-            IngredientTag.ToolRepair => PotionPurpose.Maintenance,    // Тиха правка (інструменти)
-            IngredientTag.Poison => PotionPurpose.Poison,         // Чорний ковток
-            IngredientTag.Healing => PotionPurpose.Healing,        // Лікувальні ефекти
-            IngredientTag.Clean => PotionPurpose.Clean,          // Пилозгін
-            IngredientTag.WeatherControl => PotionPurpose.Weather,        // Хмарний вузол
-            IngredientTag.Tracking => PotionPurpose.Foraging,       // Слідолист (пошук трав)
-            IngredientTag.Gardening => PotionPurpose.PlantCare,      // Садовий настрій
-            IngredientTag.Purification => PotionPurpose.Purification,   // Чиста вода
-            IngredientTag.Recovery => PotionPurpose.Energy,         // Збір сил (відновлення енергії)
-            IngredientTag.Endurance => PotionPurpose.Stamina,        // Стійкість (витривалість)
-            IngredientTag.Social => PotionPurpose.Charisma,       // Відкрите серце (харизма/соціальне)
-            IngredientTag.Strength => PotionPurpose.Buff,           // Кріпкість (фізичне підсилення NPC)
-            IngredientTag.Demolition => PotionPurpose.Explosion,      // Бомбарда (вибух)
-            IngredientTag.Mutation => PotionPurpose.Transformation, // Чужа риса (трансформація)
-            IngredientTag.Disguise => PotionPurpose.Illusion,       // Маска (ілюзія/маскування)
+            // === ЦІЛЬОВІ ТЕГИ ЗІЛЛЯ -> МЕТА ЗІЛЛЯ ===
+            IngredientTag.Heating => PotionPurpose.Heating,        // Теплий шепіт
+            IngredientTag.WallRepair => PotionPurpose.Repair,         // Тріщинозбір
+            IngredientTag.ToolRepair => PotionPurpose.Maintenance,    // Тиха правка (інструменти)
+            IngredientTag.Poison => PotionPurpose.Poison,         // Чорний ковток
+            IngredientTag.Healing => PotionPurpose.Healing,        // Лікувальні ефекти
+            IngredientTag.Clean => PotionPurpose.Clean,          // Пилозгін
+            IngredientTag.WeatherControl => PotionPurpose.Weather,        // Хмарний вузол
+            IngredientTag.Tracking => PotionPurpose.Foraging,       // Слідолист (пошук трав)
+            IngredientTag.Gardening => PotionPurpose.PlantCare,      // Садовий настрій
+            IngredientTag.Purification => PotionPurpose.Purification,   // Чиста вода
+            IngredientTag.Recovery => PotionPurpose.Energy,         // Збір сил (відновлення енергії)
+            IngredientTag.Endurance => PotionPurpose.Stamina,        // Стійкість (витривалість)
+            IngredientTag.Social => PotionPurpose.Charisma,       // Відкрите серце (харизма/соціальне)
+            IngredientTag.Strength => PotionPurpose.Buff,           // Кріпкість (фізичне підсилення NPC)
+            IngredientTag.Demolition => PotionPurpose.Explosion,      // Бомбарда (вибух)
+            IngredientTag.Mutation => PotionPurpose.Transformation, // Чужа риса (трансформація)
+            IngredientTag.Disguise => PotionPurpose.Illusion,       // Маска (ілюзія/маскування)
 
-            // Усі інші фізичні, матеріальні теги чи None не є домінантними для мети зілля
-            _ => PotionPurpose.None
+            // Усі інші фізичні, матеріальні теги чи None не є домінантними для мети зілля
+            _ => PotionPurpose.None
         };
     }
 
@@ -362,7 +407,8 @@ public class Cauldron : MonoBehaviour, IIngredientReceiver, IBrewFinishReceiver
 
         inventory.Remove(ingredient, 1);
         Receive(ingredient);
-
+        ShowIngredientPopup(ingredient,1);
+        PlayIngredientEffect(ingredient);
         Debug.Log($"[CAULDRON] Added from inventory: {ingredient.displayName}");
 
         return true;
@@ -375,14 +421,71 @@ public class Cauldron : MonoBehaviour, IIngredientReceiver, IBrewFinishReceiver
             case BrewResult.Perfect:
                 return new Color(0.2f, 1f, 0.3f); // яскраво-зелений
 
-            case BrewResult.Good:
+            case BrewResult.Good:
                 return new Color(0.4f, 0.8f, 1f); // блакитний
 
-            case BrewResult.Fail:
+            case BrewResult.Fail:
                 return new Color(0.8f, 0.4f, 0.1f); // помаранчевий
 
-            default:
+            default:
                 return Color.magenta;
         }
+    }
+
+    private void CheckPotionQuest(BrewedPotionData potion)
+    {
+        QuestInteractable[] quests =
+            FindObjectsByType<QuestInteractable>(
+                FindObjectsSortMode.None
+            );
+
+
+        foreach (var quest in quests)
+        {
+            if (quest.CheckPotion(potion))
+            {
+                quest.Interact();
+
+                Debug.Log(
+                    $"[QUEST] Potion {potion.purpose} completed"
+                );
+            }
+        }
+    }
+
+    private void PlayIngredientEffect(
+    IngredientData ingredient)
+    {
+        var main = ingredientParticles.main;
+
+        main.startColor =
+            ingredient.particleColor;
+
+        ingredientParticles.Play();
+
+    }
+
+    private void ShowIngredientPopup(
+    IngredientData ingredient,
+    int amount)
+    {
+
+        if (popupPrefab == null)
+            return;
+
+
+        IngredientPopupWorld popup =
+            Instantiate(
+                popupPrefab,
+                popupPoint.position,
+                Quaternion.identity
+            );
+
+
+        popup.Setup(
+            ingredient,
+            amount
+        );
+
     }
 }

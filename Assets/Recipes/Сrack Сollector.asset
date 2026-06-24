@@ -51,7 +51,8 @@ MonoBehaviour:
     optimalTime: 8
     timeTolerance: 3
     optimalStirCount: 2
-    stirTolerance: 0
+    stirTolerance: 1
   sideEffects: []
   icon: {fileID: -590390041, guid: a04c7a6ab5328224b973c456e9b9083c, type: 3}
   requiredTier: 1
+  notes: []

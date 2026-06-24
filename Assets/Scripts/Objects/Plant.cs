@@ -3,59 +3,171 @@ using UnityEngine;
 public class Plant : MonoBehaviour
 {
     [Header("Links")]
-    [SerializeField] private HealingReaction healingReaction;
+    [SerializeField] private PlantCareReaction plantcareReaction;
 
-    [Header("Scale Settings")]
+    [Header("Potion Effects")]
     [SerializeField] private float perfectScaleMultiplier = 2f;
     [SerializeField] private float goodScaleMultiplier = 1.3f;
 
-    void Awake()
+    [Header("Growth")]
+    [SerializeField] private int daysToGrow = 4;
+    [SerializeField] private float seedScale = 0.2f;
+
+    [Header("Harvest")]
+    [SerializeField] private IngredientData ingredient;
+    [SerializeField] private int harvestAmount = 3;
+    private Vector3 matureScale;
+    [SerializeField] private StorageInventory storageInventory;
+    private int growthDays;
+
+    private bool mature;
+    public bool CanHarvest => mature;
+    private void Awake()
     {
-        if (healingReaction == null)
-            healingReaction = GetComponent<HealingReaction>();
+        if (plantcareReaction == null)
+            plantcareReaction =
+                GetComponent<PlantCareReaction>();
+
+        matureScale = transform.localScale;
+
+        transform.localScale =
+            matureScale * seedScale;
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
-        if (healingReaction != null)
-            healingReaction.OnStateChanged += OnPlantStateChanged;
+        if (plantcareReaction != null)
+            plantcareReaction.OnStateChanged +=
+                OnPlantStateChanged;
+
+        DayManager.OnNewDay += GrowOneDay;
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
-        if (healingReaction != null)
-            healingReaction.OnStateChanged -= OnPlantStateChanged;
+        if (plantcareReaction != null)
+            plantcareReaction.OnStateChanged -=
+                OnPlantStateChanged;
+
+        DayManager.OnNewDay -= GrowOneDay;
     }
 
-    void OnPlantStateChanged(PlantState state)
+    private void GrowOneDay()
     {
-        Debug.Log($"[Plant] State: {state}");
+        if (mature)
+            return;
 
+        growthDays++;
+
+        float progress =
+            growthDays / (float)daysToGrow;
+
+        progress = Mathf.Clamp01(progress);
+
+        transform.localScale =
+            Vector3.Lerp(
+                matureScale * seedScale,
+                matureScale,
+                progress
+            );
+
+        if (progress >= 1f)
+        {
+            MakeMature();
+        }
+    }
+    private void MakeMature()
+    {
+        mature = true;
+
+        growthDays = daysToGrow;
+
+        transform.localScale = matureScale;
+
+        Debug.Log("[Plant] Mature");
+    }
+
+
+    public void Harvest()
+    {
+        if (!mature)
+        {
+            Debug.Log("[Plant] Not ready for harvest");
+            return;
+        }
+
+        if (ingredient == null)
+        {
+            Debug.LogWarning("[Plant] Ingredient is NULL");
+            return;
+        }
+
+        if (storageInventory == null)
+        {
+            Debug.LogWarning("[Plant] StorageInventory is NULL");
+            return;
+        }
+
+        storageInventory.AddIngredient(
+            ingredient,
+            harvestAmount
+        );
+
+        Debug.Log(
+            $"[Plant] Harvested {harvestAmount}x {ingredient.displayName}"
+        );
+
+        growthDays = 0;
+        mature = false;
+
+        transform.localScale =
+            matureScale * seedScale;
+    }
+
+    public void Interact()
+    {
+        if (CanHarvest)
+        {
+            Harvest();
+        }
+        else
+        {
+            Debug.Log("[Plant] Not ready");
+        }
+    }
+
+    private void OnPlantStateChanged(
+     PlantState state
+ )
+    {
         switch (state)
         {
             case PlantState.Grown:
-                Grow(goodScaleMultiplier);
+
+                MakeMature();
+
                 break;
 
             case PlantState.Overgrown:
-                Grow(perfectScaleMultiplier);
+
+                MakeMature();
+
                 break;
 
             case PlantState.Dead:
+
                 DestroyPlant();
+
                 break;
         }
     }
 
-    void Grow(float multiplier)
+    private void DestroyPlant()
     {
-        transform.localScale *= multiplier;
-        Debug.Log($"[Plant] Scaled x{multiplier}");
-    }
+        Debug.Log(
+            "[Plant] Destroyed"
+        );
 
-    void DestroyPlant()
-    {
-        Debug.Log("[Plant] Destroyed");
         Destroy(gameObject);
     }
 }

@@ -60,3 +60,4 @@ MonoBehaviour:
   sideEffects: []
   icon: {fileID: 2122491140, guid: a04c7a6ab5328224b973c456e9b9083c, type: 3}
   requiredTier: 2
+  notes: []

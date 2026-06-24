@@ -20,6 +20,10 @@ public class PlayerInteraction : MonoBehaviour
     public Cauldron currentCauldron;
 
     public SpoonStirController spoonStir;
+
+    [Header("Animation")]
+    [SerializeField] private Animator animator;
+
     private void Update()
     {
         DetectReceiver();
@@ -216,24 +220,22 @@ public class PlayerInteraction : MonoBehaviour
     // =========================
     // INTERACT (INGREDIENTS)
     // =========================
-    // =========================
-    // INTERACT (INGREDIENTS)
-    // =========================
+
     public void OnInteract(InputValue value)
     {
         if (!value.isPressed) return;
 
-        // 🔥 1. SLEEP має ПРІОРИТЕТ
+
+        // 1. SLEEP
         if (currentBed != null)
         {
             currentBed.TrySleep();
             return;
         }
 
-        // 🔥 2. CAULDRON (Виправляємо помилку: зчитуємо казан із поточного знайденого ресівера)
+        // 2. CAULDRON
         if (currentReceiver is Cauldron cauldron)
         {
-           
             var inventory = playerInventory.Items;
 
             foreach (var slot in inventory)
@@ -248,16 +250,29 @@ public class PlayerInteraction : MonoBehaviour
 
                 if (success)
                 {
-                    Debug.Log("[PLAYER] Added ingredient to cauldron");
+                    if (animator != null)
+                        animator.SetTrigger("PickUp");
+                    else Debug.LogError("Animation 0");
+
+                        Debug.Log("[PLAYER] Added ingredient to cauldron");
                     return;
                 }
+
             }
 
             Debug.Log("[PLAYER] No ingredients to add");
+
+            return;
         }
-        else
+
+
+        // PLANT
+        if (currentReceiver is Plant plant)
         {
-            Debug.Log("[PLAYER] No cauldron nearby (currentReceiver is not a Cauldron)");
+            plant.Interact();
+            return;
         }
+        return;
+        
     }
 }

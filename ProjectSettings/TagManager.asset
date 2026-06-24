@@ -16,7 +16,7 @@ TagManager:
   - Cauldron
   - Object
   - Wall
-  - 
+  - Popup
   - 
   - 
   - 
@@ -42,6 +42,9 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Popup
+    uniqueID: 3118225851
     locked: 0
   m_RenderingLayers:
   - Default

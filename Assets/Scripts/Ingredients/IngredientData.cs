@@ -32,4 +32,6 @@ public class IngredientData : ScriptableObject
 
     [Header("Price")]
     public int buyPrice = 5;
+
+    public Color particleColor = Color.green;
 }

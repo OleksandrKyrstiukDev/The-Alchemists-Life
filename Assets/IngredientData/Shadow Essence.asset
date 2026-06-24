@@ -28,3 +28,5 @@ MonoBehaviour:
   affectsBrewPhase: 1
   affectsFinishPhase: 1
   icon: {fileID: -1344280570, guid: 357212d7216dd9a47b00df75797be839, type: 3}
+  buyPrice: 5
+  particleColor: {r: 0.14117648, g: 0, b: 0.27450982, a: 1}

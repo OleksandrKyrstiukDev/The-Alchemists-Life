@@ -1,52 +1,81 @@
-using UnityEngine;
+п»їusing UnityEngine;
 
-public partial class DoorController : MonoBehaviour
+public class DoorController : MonoBehaviour
 {
-    public GameObject door; // Перетягни сюди об'єкт дверей
-    public float openAngle = 90f; // Кут повороту
-    public float speed = 2f; // Швидкість відкриття
+    [Header("Door")]
+    public Transform door;
+    public float openAngle = 90f;
+    public float speed = 2f;
+
+    [Header("Audio")]
+    public AudioSource audioSource;
+    public AudioClip openSound;
 
     private Quaternion closedRotation;
     private Quaternion openRotation;
-    private bool isPlayerInside = false;
 
-    void Start()
+    private bool isPlayerInside;
+    private bool wasPlayerInside;
+
+    private Transform player;
+
+    private void Start()
     {
-        // Запам'ятовуємо початковий стан
-        closedRotation = door.transform.localRotation;
-
-        // ЗМІНА ТУТ: міняємо (0, openAngle, 0) на (0, 0, openAngle)
-        openRotation = closedRotation * Quaternion.Euler(0, 0, openAngle);
+        closedRotation = door.localRotation;
     }
 
-    void Update()
+    private void Update()
     {
-        // Плавна анімація повороту
-        if (isPlayerInside)
-        {
-            door.transform.localRotation = Quaternion.Slerp(door.transform.localRotation, openRotation, Time.deltaTime * speed);
-        }
-        else
-        {
-            door.transform.localRotation = Quaternion.Slerp(door.transform.localRotation, closedRotation, Time.deltaTime * speed);
-        }
+        RotateDoor();
+        HandleSound();
     }
 
-    // Спрацьовує, коли гравець входить у зону
+    private void RotateDoor()
+    {
+        Quaternion target = isPlayerInside ? openRotation : closedRotation;
+
+        door.localRotation = Quaternion.Slerp(
+            door.localRotation,
+            target,
+            Time.deltaTime * speed
+        );
+    }
+
+    private void HandleSound()
+    {
+        if (isPlayerInside && !wasPlayerInside)
+        {
+            if (audioSource != null && openSound != null)
+                audioSource.PlayOneShot(openSound);
+        }
+
+        wasPlayerInside = isPlayerInside;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
-        {
-            isPlayerInside = true;
-        }
+        if (!other.CompareTag("Player"))
+            return;
+
+        player = other.transform;
+        isPlayerInside = true;
+
+        Vector3 toPlayer = player.position - door.position;
+
+        // рџ”Ґ РљР›Р®Р§РћР’РР™ РњРћРњР•РќРў: РїРµСЂРїРµРЅРґРёРєСѓР»СЏСЂ РґРѕ РґРІРµСЂРµР№
+        float side = Vector3.Dot(door.up, Vector3.Cross(door.forward, toPlayer));
+
+        float direction = (side > 0f) ? 1f : -1f;
+
+        openRotation = closedRotation * Quaternion.Euler(0f, 0f, openAngle * direction);
     }
 
-    // Спрацьовує, коли гравець виходить із зони
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Player"))
-        {
-            isPlayerInside = false;
-        }
+        if (!other.CompareTag("Player"))
+            return;
+
+        isPlayerInside = false;
+        player = null;
     }
 }

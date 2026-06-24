@@ -50,6 +50,5 @@ public class PanelController : MonoBehaviour
         currentPanel = null;
         isOpen = false;
 
-        Cursor.visible = false;
     }
 }

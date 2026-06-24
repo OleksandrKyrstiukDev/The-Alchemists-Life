@@ -25,6 +25,9 @@ public class RecipeObject : ScriptableObject
 
     [Header("Progression")]
     public ReputationTier requiredTier;
+
+    [Header("Alchemy Notes")]
+    public List<RecipeNote> notes;
 }
 
 [System.Serializable]
@@ -45,4 +48,17 @@ public class SideEffect
     public string effectName;
     [TextArea] public string description;
     [Range(0f,1f)] public float chance;
+}
+
+
+[System.Serializable]
+public class RecipeNote
+{
+    public BrewMistakeType triggerMistake;
+
+    [Min(1)]
+    public int requiredOccurrences = 3;
+
+    [TextArea(3, 6)]
+    public string noteText;
 }

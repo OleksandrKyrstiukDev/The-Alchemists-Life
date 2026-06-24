@@ -3,6 +3,7 @@ using UnityEngine;
 [Serializable]
 public class GameSaveData
 {
+    public bool introPlayed;
     public int day;
 
     public int gold;
